@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+import pickle
+from time import time
+import random
+import urllib.request
+import re
+
+with open('santabantaimagelinks.pkl','rb') as picfile:
+    links = pickle.load(picfile)
+
+
+
+def download_pictures(url,name):    
+    full_name = name+'santabanta'+'.jpg'
+    try:
+        urllib.request.urlretrieve(url,'/home/prashant/Desktop/programming/scraping/santabantaimages/'+full_name)
+        print('Success')
+    except Exception as e:
+        print(str(e))
+def get_name_fromurl(url):
+    rev_link = []
+    na = re.compile(r'gpj\.(.*?)\/',re.DOTALL)
+    kkk = ''
+    for k in reversed(url):
+        rev_link.append(k)
+            
+    kkk = ''.join(rev_link)
+    
+    fi = re.findall(na,kkk)
+    name_list = []
+    name = ''
+    for f in fi:
+        for tt in reversed(f):
+            name_list.append(tt)
+    name = ''.join(name_list)
+    return name
+    
+
+
+if __name__=='__main__':
+    http_links = []
+    jpg_links = []
+    time_start = time()
+    print(len(links))
+    for i in links:
+        if i.startswith('http'):
+            http_links.append(i)
+    for j in http_links:
+        if j.endswith('.jpg'):
+            jpg_links.append(j)
+    right_names = []
+    for uu in jpg_links:
+        name= get_name_fromurl(uu)
+        download_pictures(uu,name)
+    time_end = time()
+    tot_time = (time_end - time_start)/60
+    print('Total time to download : '+ str(tot_time)+ ' minutes')
+        
+    
+        
+    
+           
+    
+        
+    
+    
+    
+    '''
+    time_start = time()
+    for i in links:
+        try:
+            download_pictures(i)
+            print('downloaded')
+        except Exception as e:
+            print(str(e))
+    time_end = time()
+    tot_time = time_end - time_start
+    print('Done ' + 'time taken ' + str(tot_time))
+    '''                          
+                               
