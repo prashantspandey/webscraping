@@ -16,25 +16,45 @@ time_start_gath = time()
 r = requests.get(my_url)
 soup = BeautifulSoup(r.content, "lxml")
 ls = soup.findAll('a')
+
+ph_div = soup.findAll('img')
 fpl = []
 spl =[]
 tpl = []
 all_linkss = []
 main_links = []
 photo_links = []
+ph_links1 = []
+ph_links2 = []
+ph_links3 = []
+ph_linksall =[]
+for phot in ph_div:
+    try:
+        ph_link = phot['src']
+        ph_links1.append(ph_link)
+        print('Image Link: '+ ph_link)
+    except Exception as e:
+        print(str(e))
 for i in ls:
     try:
         link = i['href']
+        # for every img tag found put the src link in a list
+        
         first_page_links.append(link)
     except:
         print('couldnot find href')
 
 first_page_links = list(unique_everseen(first_page_links))
 for i in first_page_links:
-    if re.match(r'^/',i):
+    if re.match(r'^show',i) or re.match(r'^forumdisplay',i):
+        i = my_url + i
+        print('Link on 1st page:SHOW OR FORUMDISPLAY '+ i)
+        fpl.append(i)
+    elif re.match(r'^/',i):
         i = append_url + i
         print('Link on 1st page: '+ i)
         fpl.append(i)
+        
     else:
         fpl.append(i)
         print('Link on 1st page: '+ i)
@@ -44,18 +64,35 @@ for j in fpl:
         new_nage = requests.get(j)
         new_soup = BeautifulSoup(new_nage.content,'html.parser')
         sls = new_soup.findAll('a')
+        # now get all the img tags
+        photoreq2 = requests.get(j)
+        photo_soup2 = BeautifulSoup(photoreq2.content,'lxml')
+        ph_div2 = photo.soup2.findAll('img')
         try:
             for k in sls:
                 slink = k['href']
                 second_page_links.append(slink)
+                
+        except Exception as e:
+            print(str(e))
+        try:
+            for pot in ph_div2:
+                # find and add all the src links
+                ph_link2 = pot['src']
+                ph_links2.append(ph_link2)
+                print('Image Link on second page : '+ ph_link2)
         except Exception as e:
             print(str(e))
     except Exception as e:
         print(str(e))
 for q in second_page_links:
-    if re.match(r'^/',q):
+    if re.match(r'^show',q) or re.match(r'^forumdisplay',q):
+        q = my_url + q
+        print('Link on 2nd page: SHOW OR FORUMDISPLAY '+ q)
+        spl.append(q)
+    elif re.match(r'^/',q):
         q = append_url + q
-        print('Link on 2nd page: '+ q)
+        print('Link on 1st page: '+ q)
         spl.append(q)
     else:
         spl.append(q)
@@ -68,24 +105,44 @@ for k in spl:
         secon_page = requests.get(k)
         second_soup = BeautifulSoup(secon_page.content,'lxml')
         tls = second_soup.findAll('a')
+        # now get all the img tags
+        photoreq3 = requests.get(k)
+        photo_soup3 = BeautifulSoup(photoreq3.content,'lxml')
+        ph_div3 = photo.soup3.findAll('img')
         try:
             for l in tls:
                 tlink = l['href']
                 third_page_links.append(tlink)
         except Exception as e:
             print(str(e))
+                
+        try:
+            for pot in ph_div3:
+                # find and add all the src links
+                ph_link3 = pot['src']
+                ph_links3.append(ph_link3)
+                print('Image Link on third page : '+ ph_link3)
+        
+        except Exception as e:
+            print(str(e))
     except Exception as e:
         print(str(e))
 for m in third_page_links:
-    if re.match(r'^/',m):
-        m = append_url + m
+    if re.match(r'^show',m) or re.match(r'^forumdisplay',m):
+        m = my_url + m
         tpl.append(m)
-        print('Link on 3rd page: '+ m)
+        print('Link on 3rd page:SHOW OR FORUMDISPLAY '+ m)
+    elif re.match(r'^/',m):
+        m = append_url + m
+        print('Link on 1st page: '+ m)
+        tpl.append(m)
     else:
         tpl.append(m)
         print('Link on 3rd page: '+ m)
 
 main_links = fpl + spl + tpl
+ph_linksall = ph_links1 + ph_links2 + ph_links3
+ph_linksall = list(unique_everseen(ph_linksall))
 main_links = list(unique_everseen(main_links))
 print('Total links found: '+ str(len(main_links)))
 
@@ -95,6 +152,7 @@ for ph in main_links:
     else:
         pass
 print('Photo links found: '+ str(len(photo_links)))
+print('Image links found: ' + str(len(ph_linksall)))
 
 with open('santabantalinks.pkl','wb') as ndtvlinks:
     pickle.dump(main_links,ndtvlinks)
@@ -103,9 +161,12 @@ with open('santabantalinks.txt', 'w',encoding="utf-8") as nd:
         nd.write('{}\n'.format(p))
 with open('santabantaphotolinks.pkl','wb') as ndtvphoto:
     pickle.dump(photo_links,ndtvphoto)
+with open('santabantaimagelinks.pkl','wb') as p_l:
+    pickle.dump(ph_linksall,p_l)
 
 time_end_gath = time()
-print('Time take to gather links: '+str(time_end_gath - time_start_gath))
+time_tak = (time_start_gath-time_end_gath)/60
+print('Time take to gather links: '+str(time_tak))
 
 '''
 
@@ -262,3 +323,4 @@ if __name__ == '__main__':
     print('Total time program took: '+ str(time() - time_strat_gath))
 
 '''
+
